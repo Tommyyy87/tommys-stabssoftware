@@ -220,6 +220,7 @@ function App() {
   const [confirmNode, askConfirm] = useConfirm();
   const fileInputRef = useRef(null);
   const saveTimer = useRef(null);
+  const skipNextPersistRef = useRef(false);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   const doPrint = useCallback((mode) => {
@@ -262,7 +263,9 @@ function App() {
       const localState = loadInitial();
       if (snapshot.exists) {
         const remoteState = normalizeState(snapshot.data());
-        const preferred = newerState(localState, remoteState);
+        const bootstrap = planBootstrapSync(localState, remoteState);
+        const preferred = normalizeState(bootstrap.preferredState);
+        skipNextPersistRef.current = bootstrap.skipInitialPersist;
         setDataRaw((prev) => newerState(prev, preferred));
         try {
           saveLocalSnapshot(preferred);
@@ -270,6 +273,8 @@ function App() {
           console.warn('Konnte Cloud-Stand nicht lokal puffern:', err);
         }
         setLastSavedAt(preferred.meta?.updatedAt || nowISO());
+      } else {
+        skipNextPersistRef.current = false;
       }
 
       setCloudState('ready');
@@ -291,6 +296,10 @@ function App() {
 
   useEffect(() => {
     if (!isUnlocked || !hydrated) return undefined;
+    if (skipNextPersistRef.current) {
+      skipNextPersistRef.current = false;
+      return undefined;
+    }
 
     setSaveState('saving');
     if (saveTimer.current) clearTimeout(saveTimer.current);
