@@ -24,9 +24,14 @@
     };
   }
 
+  function shouldDeferCloudBootstrap(snapshotLike) {
+    return !snapshotLike?.exists && !!snapshotLike?.metadata?.fromCache;
+  }
+
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { planBootstrapSync, tsOf };
+    module.exports = { planBootstrapSync, shouldDeferCloudBootstrap, tsOf };
   }
 
   globalScope.planBootstrapSync = planBootstrapSync;
+  globalScope.shouldDeferCloudBootstrap = shouldDeferCloudBootstrap;
 })(typeof window !== 'undefined' ? window : globalThis);

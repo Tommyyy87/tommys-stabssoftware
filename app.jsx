@@ -294,6 +294,10 @@ function App() {
     setCloudState('loading');
     let initialDone = false;
     const unsubscribe = ref.onSnapshot((snapshot) => {
+      if (!initialDone && shouldDeferCloudBootstrap(snapshot)) {
+        return;
+      }
+
       const localState = loadInitial();
       if (snapshot.exists) {
         const remoteState = normalizeState(snapshot.data());

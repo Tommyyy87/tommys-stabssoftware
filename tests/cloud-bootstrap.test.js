@@ -1,5 +1,7 @@
 const assert = require('assert');
-const { planBootstrapSync } = require('../sync-logic.js');
+const fs = require('fs');
+const path = require('path');
+const { planBootstrapSync, shouldDeferCloudBootstrap } = require('../sync-logic.js');
 
 const remoteState = {
   meta: { updatedAt: '2026-05-19T18:00:00.000Z' },
@@ -29,5 +31,25 @@ assert.deepEqual(localPreferred.preferredState.einsatzabschnitte, newerLocalStat
 const localOnly = planBootstrapSync(newerLocalState, null);
 assert.equal(localOnly.preferredSource, 'local');
 assert.equal(localOnly.skipInitialPersist, false);
+
+assert.equal(
+  shouldDeferCloudBootstrap({ exists: false, metadata: { fromCache: true } }),
+  true
+);
+assert.equal(
+  shouldDeferCloudBootstrap({ exists: false, metadata: { fromCache: false } }),
+  false
+);
+assert.equal(
+  shouldDeferCloudBootstrap({ exists: true, metadata: { fromCache: true } }),
+  false
+);
+
+const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.jsx'), 'utf8');
+assert.match(
+  appSource,
+  /shouldDeferCloudBootstrap\(snapshot\)/,
+  'App should defer bootstrap on cache-only empty snapshots'
+);
 
 console.log('cloud bootstrap tests passed');
