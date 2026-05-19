@@ -237,6 +237,15 @@ function App() {
     return () => window.removeEventListener('afterprint', onAfter);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = t.theme;
+    document.body.dataset.theme = t.theme;
+    return () => {
+      delete document.documentElement.dataset.theme;
+      delete document.body.dataset.theme;
+    };
+  }, [t.theme]);
+
   const setData = useCallback((updater) => {
     setDataRaw((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
