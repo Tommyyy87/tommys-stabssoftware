@@ -207,6 +207,23 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "showFunkruf": false
 }/*EDITMODE-END*/;
 
+function printTimestampParts(baseIso) {
+  const d = baseIso ? new Date(baseIso) : new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}-${pad(d.getMinutes())}`,
+  };
+}
+
+function buildPrintTitle(data, mode) {
+  const einsatz = data?.einsatz || {};
+  const nr = (einsatz.nummer || 'einsatz').replace(/[^a-z0-9-_]+/gi, '_');
+  const label = mode === 'kraefte' ? 'kraefteuebersicht' : 'einsatztagebuch';
+  const stamp = printTimestampParts(nowISO());
+  return `${label}_${nr}_${stamp.date}_${stamp.time}`;
+}
+
 function App() {
   const [data, setDataRaw] = useState(loadInitial);
   const [tab, setTab] = useState('stamm');
@@ -221,18 +238,26 @@ function App() {
   const fileInputRef = useRef(null);
   const saveTimer = useRef(null);
   const skipNextPersistRef = useRef(false);
+  const previousTitleRef = useRef(document.title);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   const doPrint = useCallback((mode) => {
+    previousTitleRef.current = document.title;
     setPrintMode(mode);
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => setPrintMode(null), 100);
-    }, 80);
-  }, []);
+    const nextTitle = buildPrintTitle(data, mode);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.title = nextTitle;
+        window.print();
+      });
+    });
+  }, [data]);
 
   useEffect(() => {
-    const onAfter = () => setPrintMode(null);
+    const onAfter = () => {
+      document.title = previousTitleRef.current;
+      setPrintMode(null);
+    };
     window.addEventListener('afterprint', onAfter);
     return () => window.removeEventListener('afterprint', onAfter);
   }, []);

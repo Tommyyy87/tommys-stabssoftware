@@ -17,12 +17,10 @@
   /* Hide everything except the print view */
   body > * { display: none !important; }
   body > #root { display: block !important; }
-  #root > * { display: none !important; }
-  /* The .app wrapper is hidden, but we re-mount the print view at app level.
-     Re-show #root then any .print-area inside it. */
+  .app { display: block !important; }
+  .app > * { display: none !important; }
+  .app > .print-area { display: block !important; }
   .print-area, .print-area * { visibility: visible; }
-  .app, .app > .print-area { display: block !important; }
-  .app > *:not(.print-area) { display: none !important; }
   .app::before { display: none !important; }
   .twk-panel, .twk-toggle, .modal-bg { display: none !important; }
 
@@ -41,10 +39,37 @@
     color: #111;
     font-size: 9.5pt;
     line-height: 1.4;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
 /* Print header */
+.print-area {
+  position: relative;
+  isolation: isolate;
+}
+.print-area > * {
+  position: relative;
+  z-index: 1;
+}
+.print-area .print-watermark {
+  position: absolute;
+  top: 16mm;
+  right: 0;
+  width: 54mm;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.055;
+}
+.print-area .print-watermark img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.05);
+}
 .print-area .print-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -143,8 +168,8 @@
 /* Kräfteübersicht print */
 .print-area .print-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5mm;
+  grid-template-columns: 1fr;
+  gap: 4mm;
 }
 .print-area .print-ea {
   border: 1px solid #c0c5d0;
@@ -172,6 +197,7 @@
   display: flex; gap: 12px;
   font-size: 8.5pt;
   color: #333;
+  flex-wrap: wrap;
 }
 
 .print-area .print-summary {

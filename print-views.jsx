@@ -59,6 +59,9 @@ function PrintKraefte({ data }) {
 
   return (
     <div className="print-area print-kraefte">
+      <div className="print-watermark" aria-hidden="true">
+        <img src="assets/biv-logo.png" alt="" />
+      </div>
       <PrintHeader
         data={data}
         titel="Kräfteübersicht"
@@ -159,6 +162,9 @@ function PrintTagebuch({ data }) {
   const entries = [...(data.tagebuch || [])].sort((a,b) => (a.nr||0) - (b.nr||0));
   return (
     <div className="print-area print-tagebuch">
+      <div className="print-watermark" aria-hidden="true">
+        <img src="assets/biv-logo.png" alt="" />
+      </div>
       <PrintHeader data={data} titel="Einsatztagebuch der Einsatzleitung" blattInfo={`${entries.length} Einträge`} />
 
       <table className="print-table tb">
