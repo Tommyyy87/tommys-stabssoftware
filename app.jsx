@@ -1,8 +1,8 @@
 // app.jsx - Hauptanwendung: State, Auto-Save, Tabs, Export/Import, Cloud-Sync
 
-const STORAGE_KEY = 'einsatzleitung_v1';
-const ACCESS_KEY = 'einsatzleitung_access_v1';
-const ACCESS_PASSWORD = 'b42606idf';
+const STORAGE_KEY = "einsatzleitung_v1";
+const ACCESS_KEY = "einsatzleitung_access_v1";
+const ACCESS_PASSWORD = "b42606idf";
 const ACCESS_TTL_MS = 24 * 60 * 60 * 1000;
 const BOT_DELAY_MS = 1600;
 const SCHEMA_VERSION = 1;
@@ -10,15 +10,15 @@ const SCHEMA_VERSION = 1;
 const EMPTY_STATE = {
   schemaVersion: SCHEMA_VERSION,
   einsatz: {
-    nummer: '',
-    stichwort: '',
-    fuehrungsstufe: 'C',
-    ort: '',
-    befehlsstelle: '',
-    leitstelle: '',
-    anordnung: '',
-    uebernommen: '',
-    lage: '',
+    nummer: "",
+    stichwort: "",
+    fuehrungsstufe: "C",
+    ort: "",
+    befehlsstelle: "",
+    leitstelle: "",
+    anordnung: "",
+    uebernommen: "",
+    lage: "",
   },
   funktionen: {},
   kraefte: {},
@@ -28,14 +28,21 @@ const EMPTY_STATE = {
 };
 
 function normalizeState(input) {
-  const state = input && typeof input === 'object' ? input : {};
+  const state = input && typeof input === "object" ? input : {};
   return {
     ...EMPTY_STATE,
     ...state,
     einsatz: { ...EMPTY_STATE.einsatz, ...(state.einsatz || {}) },
-    funktionen: state.funktionen && typeof state.funktionen === 'object' ? state.funktionen : {},
-    kraefte: state.kraefte && typeof state.kraefte === 'object' ? state.kraefte : {},
-    einsatzabschnitte: state.einsatzabschnitte && typeof state.einsatzabschnitte === 'object' ? state.einsatzabschnitte : {},
+    funktionen:
+      state.funktionen && typeof state.funktionen === "object"
+        ? state.funktionen
+        : {},
+    kraefte:
+      state.kraefte && typeof state.kraefte === "object" ? state.kraefte : {},
+    einsatzabschnitte:
+      state.einsatzabschnitte && typeof state.einsatzabschnitte === "object"
+        ? state.einsatzabschnitte
+        : {},
     tagebuch: Array.isArray(state.tagebuch) ? state.tagebuch : [],
     meta: { ...EMPTY_STATE.meta, ...(state.meta || {}) },
   };
@@ -47,20 +54,22 @@ function loadInitial() {
     if (!raw) return normalizeState(EMPTY_STATE);
     return normalizeState(JSON.parse(raw));
   } catch (err) {
-    console.warn('Konnte gespeicherten Zustand nicht laden:', err);
+    console.warn("Konnte gespeicherten Zustand nicht laden:", err);
     return normalizeState(EMPTY_STATE);
   }
 }
 
 function tsOf(iso) {
-  const ms = Date.parse(iso || '');
+  const ms = Date.parse(iso || "");
   return Number.isFinite(ms) ? ms : 0;
 }
 
 function newerState(a, b) {
   const stateA = normalizeState(a);
   const stateB = normalizeState(b);
-  return tsOf(stateB.meta?.updatedAt) > tsOf(stateA.meta?.updatedAt) ? stateB : stateA;
+  return tsOf(stateB.meta?.updatedAt) > tsOf(stateA.meta?.updatedAt)
+    ? stateB
+    : stateA;
 }
 
 function hasValidAccess() {
@@ -75,7 +84,10 @@ function hasValidAccess() {
 }
 
 function grantAccess() {
-  localStorage.setItem(ACCESS_KEY, JSON.stringify({ expiresAt: Date.now() + ACCESS_TTL_MS }));
+  localStorage.setItem(
+    ACCESS_KEY,
+    JSON.stringify({ expiresAt: Date.now() + ACCESS_TTL_MS }),
+  );
 }
 
 function syncCloudDoc() {
@@ -89,15 +101,16 @@ function saveLocalSnapshot(state) {
 }
 
 function cloudStatusText(cloudState, lastSavedAt) {
-  if (cloudState === 'loading') return 'Cloud wird geladen';
-  if (cloudState === 'saving') return 'Cloud wird synchronisiert';
-  if (cloudState === 'error') return `Nur lokal gespeichert · ${fmtDate(lastSavedAt).slice(11)}`;
+  if (cloudState === "loading") return "Cloud wird geladen";
+  if (cloudState === "saving") return "Cloud wird synchronisiert";
+  if (cloudState === "error")
+    return `Nur lokal gespeichert · ${fmtDate(lastSavedAt).slice(11)}`;
   return `Cloud synchronisiert · ${fmtDate(lastSavedAt).slice(11)}`;
 }
 
 function AccessScreen({ onUnlock }) {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
   const honeypotRef = useRef(null);
 
@@ -109,16 +122,16 @@ function AccessScreen({ onUnlock }) {
 
   const submit = (event) => {
     event.preventDefault();
-    if ((honeypotRef.current?.value || '').trim()) {
-      setError('Zugriff aktuell nicht moeglich.');
+    if ((honeypotRef.current?.value || "").trim()) {
+      setError("Zugriff aktuell nicht moeglich.");
       return;
     }
     if (!ready) {
-      setError('Einen kurzen Moment bitte.');
+      setError("Einen kurzen Moment bitte.");
       return;
     }
     if (password !== ACCESS_PASSWORD) {
-      setError('Passwort falsch.');
+      setError("Passwort falsch.");
       return;
     }
     grantAccess();
@@ -143,13 +156,15 @@ function AccessScreen({ onUnlock }) {
           <h1>Einsatzoberflaeche entsperren</h1>
           <p>
             Diese Morgen-Version ist ueber ein gemeinsames Passwort geschuetzt.
-            Der Einsatzstand wird nach dem Entsperren zentral gespeichert und kann
-            auf einem anderen PC weitergefuehrt werden.
+            Der Einsatzstand wird nach dem Entsperren zentral gespeichert und
+            kann auf einem anderen PC weitergefuehrt werden.
           </p>
         </div>
 
         <form className="access-form" onSubmit={submit}>
-          <label className="label" htmlFor="access-password">Passwort</label>
+          <label className="label" htmlFor="access-password">
+            Passwort
+          </label>
           <input
             id="access-password"
             className="input access-input"
@@ -157,7 +172,7 @@ function AccessScreen({ onUnlock }) {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
-              if (error) setError('');
+              if (error) setError("");
             }}
             autoFocus
             autoComplete="current-password"
@@ -173,9 +188,11 @@ function AccessScreen({ onUnlock }) {
           />
           <div className="access-actions">
             <button className="btn primary" type="submit" disabled={!ready}>
-              {ready ? 'Zugang oeffnen' : 'Bitte kurz warten'}
+              {ready ? "Zugang oeffnen" : "Bitte kurz warten"}
             </button>
-            <span className="access-note">Freigabe bleibt fuer 24 Stunden auf diesem Browser erhalten.</span>
+            <span className="access-note">
+              Freigabe bleibt fuer 24 Stunden auf diesem Browser erhalten.
+            </span>
           </div>
           {error && <div className="access-error">{error}</div>}
         </form>
@@ -199,17 +216,17 @@ function LoadingScreen({ title, body }) {
 }
 
 // Tweaks (theme + density + Ablöseschwelle + Anzeige-Optionen)
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "theme": "dark",
-  "density": "regular",
-  "ablThreshold": 6,
-  "showFms": false,
-  "showFunkruf": false
-}/*EDITMODE-END*/;
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/ {
+  theme: "dark",
+  density: "regular",
+  ablThreshold: 6,
+  showFms: false,
+  showFunkruf: false,
+}; /*EDITMODE-END*/
 
 function printTimestampParts(baseIso) {
   const d = baseIso ? new Date(baseIso) : new Date();
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n) => String(n).padStart(2, "0");
   return {
     date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     time: `${pad(d.getHours())}-${pad(d.getMinutes())}`,
@@ -218,48 +235,56 @@ function printTimestampParts(baseIso) {
 
 function buildPrintTitle(data, mode) {
   const einsatz = data?.einsatz || {};
-  const nr = (einsatz.nummer || 'einsatz').replace(/[^a-z0-9-_]+/gi, '_');
-  const label = mode === 'kraefte' ? 'kraefteuebersicht' : 'einsatztagebuch';
+  const nr = (einsatz.nummer || "einsatz").replace(/[^a-z0-9-_]+/gi, "_");
+  const label = mode === "kraefte" ? "kraefteuebersicht" : "einsatztagebuch";
   const stamp = printTimestampParts(nowISO());
   return `${label}_${nr}_${stamp.date}_${stamp.time}`;
 }
 
 function App() {
   const [data, setDataRaw] = useState(loadInitial);
-  const [tab, setTab] = useState('stamm');
-  const [saveState, setSaveState] = useState('saved');
-  const [lastSavedAt, setLastSavedAt] = useState(loadInitial().meta?.updatedAt || nowISO());
+  const [tab, setTab] = useState("stamm");
+  const [saveState, setSaveState] = useState("saved");
+  const [lastSavedAt, setLastSavedAt] = useState(
+    loadInitial().meta?.updatedAt || nowISO(),
+  );
   const [aboutOpen, setAboutOpen] = useState(false);
   const [printMode, setPrintMode] = useState(null);
   const [isUnlocked, setUnlocked] = useState(hasValidAccess);
-  const [cloudState, setCloudState] = useState(hasValidAccess() ? 'loading' : 'locked');
+  const [cloudState, setCloudState] = useState(
+    hasValidAccess() ? "loading" : "locked",
+  );
   const [hydrated, setHydrated] = useState(!hasValidAccess());
   const [confirmNode, askConfirm] = useConfirm();
   const fileInputRef = useRef(null);
   const saveTimer = useRef(null);
   const skipNextPersistRef = useRef(false);
+  const allowEmptyCloudWriteRef = useRef(false);
   const previousTitleRef = useRef(document.title);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
-  const doPrint = useCallback((mode) => {
-    previousTitleRef.current = document.title;
-    setPrintMode(mode);
-    const nextTitle = buildPrintTitle(data, mode);
-    requestAnimationFrame(() => {
+  const doPrint = useCallback(
+    (mode) => {
+      previousTitleRef.current = document.title;
+      setPrintMode(mode);
+      const nextTitle = buildPrintTitle(data, mode);
       requestAnimationFrame(() => {
-        document.title = nextTitle;
-        window.print();
+        requestAnimationFrame(() => {
+          document.title = nextTitle;
+          window.print();
+        });
       });
-    });
-  }, [data]);
+    },
+    [data],
+  );
 
   useEffect(() => {
     const onAfter = () => {
       document.title = previousTitleRef.current;
       setPrintMode(null);
     };
-    window.addEventListener('afterprint', onAfter);
-    return () => window.removeEventListener('afterprint', onAfter);
+    window.addEventListener("afterprint", onAfter);
+    return () => window.removeEventListener("afterprint", onAfter);
   }, []);
 
   useEffect(() => {
@@ -273,7 +298,7 @@ function App() {
 
   const setData = useCallback((updater) => {
     setDataRaw((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
+      const next = typeof updater === "function" ? updater(prev) : updater;
       return normalizeState({
         ...next,
         meta: { ...(next.meta || {}), updatedAt: nowISO() },
@@ -285,49 +310,52 @@ function App() {
     if (!isUnlocked) return undefined;
     const ref = syncCloudDoc();
     if (!ref) {
-      console.error('Firestore-Dokument nicht verfuegbar.');
-      setCloudState('error');
+      console.error("Firestore-Dokument nicht verfuegbar.");
+      setCloudState("error");
       setHydrated(true);
       return undefined;
     }
 
-    setCloudState('loading');
+    setCloudState("loading");
     let initialDone = false;
-    const unsubscribe = ref.onSnapshot((snapshot) => {
-      if (!initialDone && shouldDeferCloudBootstrap(snapshot)) {
-        return;
-      }
-
-      const localState = loadInitial();
-      if (snapshot.exists) {
-        const remoteState = normalizeState(snapshot.data());
-        const bootstrap = planBootstrapSync(localState, remoteState);
-        const preferred = normalizeState(bootstrap.preferredState);
-        skipNextPersistRef.current = bootstrap.skipInitialPersist;
-        setDataRaw((prev) => newerState(prev, preferred));
-        try {
-          saveLocalSnapshot(preferred);
-        } catch (err) {
-          console.warn('Konnte Cloud-Stand nicht lokal puffern:', err);
+    const unsubscribe = ref.onSnapshot(
+      (snapshot) => {
+        if (!initialDone && shouldDeferCloudBootstrap(snapshot)) {
+          return;
         }
-        setLastSavedAt(preferred.meta?.updatedAt || nowISO());
-      } else {
-        skipNextPersistRef.current = false;
-      }
 
-      setCloudState('ready');
-      if (!initialDone) {
-        setHydrated(true);
-        initialDone = true;
-      }
-    }, (err) => {
-      console.error('Cloud-Laden fehlgeschlagen:', err);
-      setCloudState('error');
-      if (!initialDone) {
-        setHydrated(true);
-        initialDone = true;
-      }
-    });
+        const localState = loadInitial();
+        if (snapshot.exists) {
+          const remoteState = normalizeState(snapshot.data());
+          const bootstrap = planBootstrapSync(localState, remoteState);
+          const preferred = normalizeState(bootstrap.preferredState);
+          skipNextPersistRef.current = bootstrap.skipInitialPersist;
+          setDataRaw((prev) => newerState(prev, preferred));
+          try {
+            saveLocalSnapshot(preferred);
+          } catch (err) {
+            console.warn("Konnte Cloud-Stand nicht lokal puffern:", err);
+          }
+          setLastSavedAt(preferred.meta?.updatedAt || nowISO());
+        } else {
+          skipNextPersistRef.current = false;
+        }
+
+        setCloudState("ready");
+        if (!initialDone) {
+          setHydrated(true);
+          initialDone = true;
+        }
+      },
+      (err) => {
+        console.error("Cloud-Laden fehlgeschlagen:", err);
+        setCloudState("error");
+        if (!initialDone) {
+          setHydrated(true);
+          initialDone = true;
+        }
+      },
+    );
 
     return () => unsubscribe();
   }, [isUnlocked]);
@@ -339,30 +367,36 @@ function App() {
       return undefined;
     }
 
-    setSaveState('saving');
+    setSaveState("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       try {
         saveLocalSnapshot(data);
       } catch (err) {
-        console.error('Lokales Speichern fehlgeschlagen:', err);
+        console.error("Lokales Speichern fehlgeschlagen:", err);
       }
 
       const ref = syncCloudDoc();
       if (ref) {
         try {
-          setCloudState('saving');
-          await ref.set(normalizeState(data));
-          setCloudState('ready');
+          const allowEmptyReset = allowEmptyCloudWriteRef.current;
+          if (shouldWriteStateToCloud(data, { allowEmptyReset })) {
+            setCloudState("saving");
+            await ref.set(normalizeState(data));
+          }
+          setCloudState("ready");
+          allowEmptyCloudWriteRef.current = false;
         } catch (err) {
-          console.error('Cloud-Sync fehlgeschlagen:', err);
-          setCloudState('error');
+          console.error("Cloud-Sync fehlgeschlagen:", err);
+          setCloudState("error");
+          allowEmptyCloudWriteRef.current = false;
         }
       } else {
-        setCloudState('error');
+        setCloudState("error");
+        allowEmptyCloudWriteRef.current = false;
       }
 
-      setSaveState('saved');
+      setSaveState("saved");
       setLastSavedAt(data.meta?.updatedAt || nowISO());
     }, 500);
 
@@ -377,11 +411,11 @@ function App() {
         saveLocalSnapshot(data);
       } catch {}
     };
-    window.addEventListener('beforeunload', flush);
-    window.addEventListener('pagehide', flush);
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("pagehide", flush);
     return () => {
-      window.removeEventListener('beforeunload', flush);
-      window.removeEventListener('pagehide', flush);
+      window.removeEventListener("beforeunload", flush);
+      window.removeEventListener("pagehide", flush);
     };
   }, [data]);
 
@@ -395,10 +429,12 @@ function App() {
   }, [data]);
 
   const exportJSON = () => {
-    const fname = `einsatztagebuch_${(data.einsatz?.nummer || 'export').replace(/[^a-z0-9-_]/gi, '_')}_${new Date().toISOString().slice(0, 10)}.json`;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const fname = `einsatztagebuch_${(data.einsatz?.nummer || "export").replace(/[^a-z0-9-_]/gi, "_")}_${new Date().toISOString().slice(0, 10)}.json`;
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = fname;
     document.body.appendChild(a);
@@ -413,9 +449,9 @@ function App() {
       try {
         const parsed = normalizeState(JSON.parse(reader.result));
         askConfirm({
-          title: 'Sicherungskopie laden?',
+          title: "Sicherungskopie laden?",
           body: `Der aktuelle Stand wird durch die Datei "${file.name}" ersetzt. Optional kannst du zuvor eine Sicherungskopie des aktuellen Stands herunterladen.`,
-          yesLabel: 'Stand ersetzen',
+          yesLabel: "Stand ersetzen",
           onYes: () => setData(() => parsed),
         });
       } catch (err) {
@@ -427,15 +463,18 @@ function App() {
 
   const newEinsatz = () => {
     askConfirm({
-      title: 'Neuen Einsatz beginnen?',
-      body: 'Der aktuelle Stand wird geloescht. Bitte vorher eine Sicherungskopie speichern, wenn der Stand archiviert werden soll.',
-      yesLabel: 'Neuen Einsatz beginnen',
+      title: "Neuen Einsatz beginnen?",
+      body: "Der aktuelle Stand wird geloescht. Bitte vorher eine Sicherungskopie speichern, wenn der Stand archiviert werden soll.",
+      yesLabel: "Neuen Einsatz beginnen",
       onYes: () => {
-        setData(() => normalizeState({
-          ...EMPTY_STATE,
-          meta: { createdAt: nowISO(), updatedAt: nowISO() },
-        }));
-        setTab('stamm');
+        allowEmptyCloudWriteRef.current = true;
+        setData(() =>
+          normalizeState({
+            ...EMPTY_STATE,
+            meta: { createdAt: nowISO(), updatedAt: nowISO() },
+          }),
+        );
+        setTab("stamm");
       },
     });
   };
@@ -449,21 +488,35 @@ function App() {
     const parts = [];
     if (e.nummer) parts.push(e.nummer);
     if (e.stichwort) parts.push(e.stichwort);
-    return parts.length ? parts.join(' · ') : 'Neuer Einsatz (noch nicht benannt)';
+    return parts.length
+      ? parts.join(" · ")
+      : "Neuer Einsatz (noch nicht benannt)";
   })();
 
-  const syncBusy = saveState === 'saving' || cloudState === 'loading' || cloudState === 'saving';
+  const syncBusy =
+    saveState === "saving" ||
+    cloudState === "loading" ||
+    cloudState === "saving";
 
   if (!isUnlocked) {
-    return <AccessScreen onUnlock={() => {
-      setUnlocked(true);
-      setCloudState('loading');
-      setHydrated(false);
-    }} />;
+    return (
+      <AccessScreen
+        onUnlock={() => {
+          setUnlocked(true);
+          setCloudState("loading");
+          setHydrated(false);
+        }}
+      />
+    );
   }
 
   if (!hydrated) {
-    return <LoadingScreen title="Cloud-Stand wird geladen" body="Der zuletzt gespeicherte Einsatzstand wird aus Firebase geladen." />;
+    return (
+      <LoadingScreen
+        title="Cloud-Stand wird geladen"
+        body="Der zuletzt gespeicherte Einsatzstand wird aus Firebase geladen."
+      />
+    );
   }
 
   return (
@@ -483,11 +536,15 @@ function App() {
 
         <div className="einsatz-meta">
           <span className="sep"></span>
-          <span><strong>{einsatzLabel}</strong></span>
+          <span>
+            <strong>{einsatzLabel}</strong>
+          </span>
           {data.einsatz?.fuehrungsstufe && (
             <>
               <span className="sep"></span>
-              <span>Stufe <strong>{data.einsatz.fuehrungsstufe}</strong></span>
+              <span>
+                Stufe <strong>{data.einsatz.fuehrungsstufe}</strong>
+              </span>
             </>
           )}
           {data.einsatz?.ort && (
@@ -499,28 +556,45 @@ function App() {
         </div>
 
         <div className="right">
-          <div className="save-indicator" title={`Letzte Synchronisierung: ${fmtDate(lastSavedAt)}`}>
-            <span className={`save-dot ${syncBusy ? 'saving' : ''} ${cloudState === 'error' ? 'error' : ''}`}></span>
+          <div
+            className="save-indicator"
+            title={`Letzte Synchronisierung: ${fmtDate(lastSavedAt)}`}
+          >
+            <span
+              className={`save-dot ${syncBusy ? "saving" : ""} ${cloudState === "error" ? "error" : ""}`}
+            ></span>
             {cloudStatusText(cloudState, lastSavedAt)}
           </div>
           <div className="menu">
-            <button className="icon-btn" onClick={exportJSON} title="Sicherungskopie als JSON-Datei herunterladen">
+            <button
+              className="icon-btn"
+              onClick={exportJSON}
+              title="Sicherungskopie als JSON-Datei herunterladen"
+            >
               <I.download /> Sicherungskopie
             </button>
-            <button className="icon-btn" onClick={() => fileInputRef.current?.click()} title="Sicherungskopie einlesen">
+            <button
+              className="icon-btn"
+              onClick={() => fileInputRef.current?.click()}
+              title="Sicherungskopie einlesen"
+            >
               <I.upload /> Laden
             </button>
             <input
               ref={fileInputRef}
               type="file"
               accept="application/json,.json"
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
               onChange={(e) => {
                 if (e.target.files?.[0]) handleImport(e.target.files[0]);
-                e.target.value = '';
+                e.target.value = "";
               }}
             />
-            <button className="icon-btn danger" onClick={newEinsatz} title="Neuen Einsatz beginnen (aktueller Stand wird verworfen)">
+            <button
+              className="icon-btn danger"
+              onClick={newEinsatz}
+              title="Neuen Einsatz beginnen (aktueller Stand wird verworfen)"
+            >
               Neuer Einsatz
             </button>
           </div>
@@ -528,75 +602,151 @@ function App() {
       </div>
 
       <div className="tabs" role="tablist">
-        <button role="tab" aria-selected={tab === 'stamm'} className="tab" onClick={() => setTab('stamm')}>
+        <button
+          role="tab"
+          aria-selected={tab === "stamm"}
+          className="tab"
+          onClick={() => setTab("stamm")}
+        >
           Stammdaten
         </button>
-        <button role="tab" aria-selected={tab === 'kraft'} className="tab" onClick={() => setTab('kraft')}>
-          Kraefteuebersicht <span className="badge">{kraefteCount}/{eaCount}EA</span>
+        <button
+          role="tab"
+          aria-selected={tab === "kraft"}
+          className="tab"
+          onClick={() => setTab("kraft")}
+        >
+          Kraefteuebersicht{" "}
+          <span className="badge">
+            {kraefteCount}/{eaCount}EA
+          </span>
         </button>
-        <button role="tab" aria-selected={tab === 'tageb'} className="tab" onClick={() => setTab('tageb')}>
+        <button
+          role="tab"
+          aria-selected={tab === "tageb"}
+          className="tab"
+          onClick={() => setTab("tageb")}
+        >
           Einsatztagebuch <span className="badge">{tbCount}</span>
         </button>
         <div style={{ flex: 1 }} />
-        <button className="tab" onClick={() => setAboutOpen(true)} title="Hinweise & Quellen" style={{ color: 'var(--text-dim)' }}>
+        <button
+          className="tab"
+          onClick={() => setAboutOpen(true)}
+          title="Hinweise & Quellen"
+          style={{ color: "var(--text-dim)" }}
+        >
           Hinweise
         </button>
       </div>
 
-      {tab === 'stamm' && <StammdatenTab data={data} setData={setData} />}
-      {tab === 'kraft' && (
+      {tab === "stamm" && <StammdatenTab data={data} setData={setData} />}
+      {tab === "kraft" && (
         <KraefteTab
           data={data}
           setData={setData}
-          onPrint={() => doPrint('kraefte')}
+          onPrint={() => doPrint("kraefte")}
           ablThreshold={t.ablThreshold || 6}
           showFms={!!t.showFms}
           showFunkruf={!!t.showFunkruf}
         />
       )}
-      {tab === 'tageb' && <TagebuchTab data={data} setData={setData} onPrint={() => doPrint('tagebuch')} />}
+      {tab === "tageb" && (
+        <TagebuchTab
+          data={data}
+          setData={setData}
+          onPrint={() => doPrint("tagebuch")}
+        />
+      )}
 
-      {printMode === 'kraefte' && <PrintKraefte data={data} />}
-      {printMode === 'tagebuch' && <PrintTagebuch data={data} />}
+      {printMode === "kraefte" && <PrintKraefte data={data} />}
+      {printMode === "tagebuch" && <PrintTagebuch data={data} />}
 
       <TweaksPanel>
         <TweakSection label="Darstellung" />
-        <TweakRadio label="Modus" value={t.theme} options={['light', 'dark']} onChange={(v) => setTweak('theme', v)} />
-        <TweakRadio label="Dichte" value={t.density} options={['compact', 'regular', 'comfy']} onChange={(v) => setTweak('density', v)} />
+        <TweakRadio
+          label="Modus"
+          value={t.theme}
+          options={["light", "dark"]}
+          onChange={(v) => setTweak("theme", v)}
+        />
+        <TweakRadio
+          label="Dichte"
+          value={t.density}
+          options={["compact", "regular", "comfy"]}
+          onChange={(v) => setTweak("density", v)}
+        />
         <TweakSection label="Kraeftekachel" />
-        <TweakToggle label="FMS-Status anzeigen" value={t.showFms} onChange={(v) => setTweak('showFms', v)} />
-        <TweakToggle label="Funkrufname anzeigen" value={t.showFunkruf} onChange={(v) => setTweak('showFunkruf', v)} />
-        <TweakSlider label="Abloeseschwelle" value={t.ablThreshold} min={2} max={24} step={1} unit=" h" onChange={(v) => setTweak('ablThreshold', v)} />
+        <TweakToggle
+          label="FMS-Status anzeigen"
+          value={t.showFms}
+          onChange={(v) => setTweak("showFms", v)}
+        />
+        <TweakToggle
+          label="Funkrufname anzeigen"
+          value={t.showFunkruf}
+          onChange={(v) => setTweak("showFunkruf", v)}
+        />
+        <TweakSlider
+          label="Abloeseschwelle"
+          value={t.ablThreshold}
+          min={2}
+          max={24}
+          step={1}
+          unit=" h"
+          onChange={(v) => setTweak("ablThreshold", v)}
+        />
       </TweaksPanel>
 
       <Modal
         open={aboutOpen}
         title="Hinweise & Quellen"
         onClose={() => setAboutOpen(false)}
-        footer={<button className="btn primary" onClick={() => setAboutOpen(false)}>Schliessen</button>}
+        footer={
+          <button className="btn primary" onClick={() => setAboutOpen(false)}>
+            Schliessen
+          </button>
+        }
         width={620}
       >
-        <div style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--text-soft)', display: 'grid', gap: 10 }}>
+        <div
+          style={{
+            fontSize: 13,
+            lineHeight: 1.55,
+            color: "var(--text-soft)",
+            display: "grid",
+            gap: 10,
+          }}
+        >
           <p style={{ margin: 0 }}>
-            <strong style={{ color: 'var(--text)' }}>Datenhaltung.</strong> Alle Eingaben werden lokal im Browser gepuffert
-            und parallel in Firebase Firestore gespeichert. Dadurch bleibt der Stand nach Browser-Schliessen, Neustart
-            oder Geraetewechsel erhalten, solange die Cloud-Synchronisierung erreichbar ist.
+            <strong style={{ color: "var(--text)" }}>Datenhaltung.</strong> Alle
+            Eingaben werden lokal im Browser gepuffert und parallel in Firebase
+            Firestore gespeichert. Dadurch bleibt der Stand nach
+            Browser-Schliessen, Neustart oder Geraetewechsel erhalten, solange
+            die Cloud-Synchronisierung erreichbar ist.
           </p>
           <p style={{ margin: 0 }}>
-            <strong style={{ color: 'var(--text)' }}>Empfehlung.</strong> Am Ende jeder Lagebesprechung sowie beim Schichtwechsel
-            weiterhin eine <em>Sicherungskopie</em> als JSON-Datei exportieren und im Stabsordner ablegen.
+            <strong style={{ color: "var(--text)" }}>Empfehlung.</strong> Am
+            Ende jeder Lagebesprechung sowie beim Schichtwechsel weiterhin eine{" "}
+            <em>Sicherungskopie</em> als JSON-Datei exportieren und im
+            Stabsordner ablegen.
           </p>
           <p style={{ margin: 0 }}>
-            <strong style={{ color: 'var(--text)' }}>Zugang.</strong> Die vorgeschaltete Passwortmaske ist fuer den morgigen Einsatz
-            als einfache Huerde gedacht. Sie ersetzt keine vollwertige Benutzerverwaltung.
+            <strong style={{ color: "var(--text)" }}>Zugang.</strong> Die
+            vorgeschaltete Passwortmaske ist fuer den morgigen Einsatz als
+            einfache Huerde gedacht. Sie ersetzt keine vollwertige
+            Benutzerverwaltung.
           </p>
           <p style={{ margin: 0 }}>
-            <strong style={{ color: 'var(--text)' }}>Taktische Zeichen.</strong> Vereinfachte Darstellung nach
-            FwDV 100 / BBK "Taktische Zeichen": Grundzeichen (Form), Fachaufgabe (Farbe) und Verbandskennzeichen (Punkte/Striche).
-            Diese App ist eine Arbeitshilfe - kein Ersatz fuer ein behoerdlich gefuehrtes Original-Tagebuch.
+            <strong style={{ color: "var(--text)" }}>Taktische Zeichen.</strong>{" "}
+            Vereinfachte Darstellung nach FwDV 100 / BBK "Taktische Zeichen":
+            Grundzeichen (Form), Fachaufgabe (Farbe) und Verbandskennzeichen
+            (Punkte/Striche). Diese App ist eine Arbeitshilfe - kein Ersatz fuer
+            ein behoerdlich gefuehrtes Original-Tagebuch.
           </p>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 12 }}>
-            Formularstruktur orientiert sich an der Vorlage "Einsatztagebuch der Einsatzleitung" (IdF NRW, Kapitel I).
+          <p style={{ margin: 0, color: "var(--text-dim)", fontSize: 12 }}>
+            Formularstruktur orientiert sich an der Vorlage "Einsatztagebuch der
+            Einsatzleitung" (IdF NRW, Kapitel I).
           </p>
         </div>
       </Modal>
@@ -604,4 +754,4 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);

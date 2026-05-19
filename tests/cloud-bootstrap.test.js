@@ -2,7 +2,9 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const {
+  hasSubstantiveState,
   planBootstrapSync,
+  shouldWriteStateToCloud,
   shouldDeferCloudBootstrap,
 } = require("../sync-logic.js");
 
@@ -74,6 +76,33 @@ assert.deepEqual(
 const localOnly = planBootstrapSync(newerLocalState, null);
 assert.equal(localOnly.preferredSource, "local");
 assert.equal(localOnly.skipInitialPersist, false);
+
+assert.equal(
+  hasSubstantiveState(freshButEmptyLocalState),
+  false,
+  "fresh empty scaffolding state should not count as substantive incident data",
+);
+assert.equal(
+  hasSubstantiveState(newerLocalState),
+  true,
+  "real incident data should count as substantive state",
+);
+
+assert.equal(
+  shouldWriteStateToCloud(freshButEmptyLocalState),
+  false,
+  "empty state must not be written to cloud unless reset was explicit",
+);
+assert.equal(
+  shouldWriteStateToCloud(freshButEmptyLocalState, { allowEmptyReset: true }),
+  true,
+  "explicit reset must be allowed to clear the cloud state",
+);
+assert.equal(
+  shouldWriteStateToCloud(newerLocalState),
+  true,
+  "substantive state should continue syncing to cloud",
+);
 
 assert.equal(
   shouldDeferCloudBootstrap({ exists: false, metadata: { fromCache: true } }),

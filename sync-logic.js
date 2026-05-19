@@ -32,6 +32,11 @@
     );
   }
 
+  function shouldWriteStateToCloud(state, options = {}) {
+    if (hasSubstantiveState(state)) return true;
+    return !!options.allowEmptyReset;
+  }
+
   function planBootstrapSync(localState, remoteState) {
     if (!remoteState) {
       return {
@@ -79,6 +84,7 @@
     module.exports = {
       planBootstrapSync,
       shouldDeferCloudBootstrap,
+      shouldWriteStateToCloud,
       tsOf,
       hasSubstantiveState,
     };
@@ -86,4 +92,5 @@
 
   globalScope.planBootstrapSync = planBootstrapSync;
   globalScope.shouldDeferCloudBootstrap = shouldDeferCloudBootstrap;
+  globalScope.shouldWriteStateToCloud = shouldWriteStateToCloud;
 })(typeof window !== "undefined" ? window : globalThis);
