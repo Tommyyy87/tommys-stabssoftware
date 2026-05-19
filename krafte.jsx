@@ -172,9 +172,10 @@ function KraftEditor({ open, kraft, onClose, onSave, onDelete }) {
 }
 
 // ===== Kraft-Tile (drag handle + display) ====================================
-function KraftTile({ kraft, draggingId, onPointerDown, onEdit, onChangeFms, ablThreshold, showFms, showFunkruf }) {
+function KraftTile({ kraft, draggingId, onPointerDown, onEdit, ablThreshold }) {
   const showTime = !!kraft.eaSince;
   const lvl = dauerLevel(kraft.eaSince, ablThreshold);
+  const people = staerkeGesamt(kraft.staerke);
   return (
     <div
       className={`kraft ${draggingId === kraft.id ? 'is-dragging' : ''}`}
@@ -186,63 +187,43 @@ function KraftTile({ kraft, draggingId, onPointerDown, onEdit, onChangeFms, ablT
         fach={kraft.fach} form={kraft.form} groesse={kraft.groesse}
         text={kraft.text} size="sm"
       />
-      <div style={{ minWidth: 0 }}>
-        <div className="kraft-line-1">
+      <div className="kraft-main">
+        <div className="kraft-name-row">
           <span className="name" title={kraft.name || kraft.text || ''}>
             {kraft.name || kraft.text || 'Kraft'}
           </span>
-          {showTime && (
-            <span
-              className={`time-chip lvl-${lvl}`}
-              title={
-                `Im Abschnitt seit ${fmtDate(kraft.eaSince)}` +
-                (kraft.einsatzSeit ? `\nEinsatz gesamt seit ${fmtDate(kraft.einsatzSeit)} (${dauerStr(kraft.einsatzSeit)})` : '') +
-                `\nAblöseschwelle: ${ablThreshold} h`
-              }
-            >
-              <span className="time-dot"></span>
-              <span className="time-val">{dauerStr(kraft.eaSince)}</span>
-              {lvl === 'overdue' && <span className="time-flag">Ablöse</span>}
-              {lvl === 'crit'    && <span className="time-flag">bald</span>}
-            </span>
-          )}
         </div>
-        {(showFunkruf && kraft.funkruf) && (
-          <div className="sub">{kraft.funkruf}</div>
-        )}
-        {kraft.bemerkung && (
-          <div className="kraft-bem-line" title={kraft.bemerkung}>{kraft.bemerkung}</div>
-        )}
-      </div>
-      <div className="stat">
-        {kraft.staerke && (
+        <div className="kraft-meta-row">
+          <span
+            className={`time-chip lvl-${lvl || 'ok'}`}
+            title={
+              showTime
+                ? (
+                    `Im Abschnitt seit ${fmtDate(kraft.eaSince)}` +
+                    (kraft.einsatzSeit ? `\nEinsatz gesamt seit ${fmtDate(kraft.einsatzSeit)} (${dauerStr(kraft.einsatzSeit)})` : '') +
+                    `\nAblöseschwelle: ${ablThreshold} h`
+                  )
+                : 'Noch keinem Abschnitt zugeordnet'
+            }
+          >
+            <span className="time-dot"></span>
+            <span className="time-label">Im Abschnitt</span>
+            <span className="time-val">{showTime ? dauerStr(kraft.eaSince) : '0 min'}</span>
+            {lvl === 'overdue' && <span className="time-flag">Ablöse</span>}
+            {lvl === 'crit' && <span className="time-flag">bald</span>}
+          </span>
           <span
             className="stk-chip"
-            title={`Personalstärke ${kraft.staerke} (Führer / Unterführer / Mannschaften) = ${staerkeGesamt(kraft.staerke)} Personen`}
+            title={`Personalstärke ${kraft.staerke || 'unbekannt'} (Führer / Unterführer / Mannschaften) = ${people} Personen`}
           >
-            <span className="stk-pers">{staerkeGesamt(kraft.staerke)}</span>
+            <span className="stk-pers">{people}</span>
             <span className="stk-label">Pers.</span>
           </span>
-        )}
-        {showFms && (
-          <div
-            className="fms" data-s={kraft.fms || '2'}
-            title={FMS_LABELS[kraft.fms || '2']}
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              const order = ['1','2','3','4','5','6','c'];
-              const cur = order.indexOf(kraft.fms || '2');
-              onChangeFms(kraft.id, order[(cur + 1) % order.length]);
-            }}
-            style={{ cursor: 'pointer' }}
-          >
-            {(kraft.fms || '2').toUpperCase()}
-          </div>
-        )}
+        </div>
+      </div>
+      <div className="stat">
         <button
-          className="icon-x"
-          style={{ width: 22, height: 22, border: 0, background: 'transparent', borderRadius: 4, color: 'var(--text-dim)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+          className="kraft-edit-btn"
           title="Bearbeiten"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); onEdit(kraft.id); }}
@@ -255,7 +236,7 @@ function KraftTile({ kraft, draggingId, onPointerDown, onEdit, onChangeFms, ablT
 }
 
 // ===== Hauptkomponente ========================================================
-function KraefteTab({ data, setData, onPrint, ablThreshold = 6, showFms = false, showFunkruf = false }) {
+function KraefteTab({ data, setData, onPrint, ablThreshold = 6 }) {
   const kraefte  = data.kraefte  || {};
   const eas      = data.einsatzabschnitte || {};
 
@@ -319,11 +300,6 @@ function KraefteTab({ data, setData, onPrint, ablThreshold = 6, showFms = false,
       return { ...d, kraefte: { ...d.kraefte, [id]: patch } };
     });
   }, [setData]);
-
-  const updateKraft = (id, patch) => setData(d => ({
-    ...d,
-    kraefte: { ...d.kraefte, [id]: { ...(d.kraefte || {})[id], ...patch } },
-  }));
 
   const upsertKraftFromEditor = (k) => {
     setData(d => {
@@ -541,10 +517,7 @@ function KraefteTab({ data, setData, onPrint, ablThreshold = 6, showFms = false,
               draggingId={draggingId}
               onPointerDown={onTilePointerDown}
               onEdit={(id) => setEditing(id)}
-              onChangeFms={(id, fms) => updateKraft(id, { fms })}
               ablThreshold={ablThreshold}
-              showFms={showFms}
-              showFunkruf={showFunkruf}
             />
           ))}
 
@@ -607,9 +580,10 @@ function KraefteTab({ data, setData, onPrint, ablThreshold = 6, showFms = false,
                     <button
                       className="btn-remove-ea"
                       title="Einsatzabschnitt entfernen"
+                      aria-label="Einsatzabschnitt entfernen"
                       onClick={() => removeEA(ea.id)}
                     >
-                      <I.trash /> Entfernen
+                      <I.trash />
                     </button>
                   </div>
                   <div className="ea-sub">
@@ -650,10 +624,7 @@ function KraefteTab({ data, setData, onPrint, ablThreshold = 6, showFms = false,
                           draggingId={draggingId}
                           onPointerDown={onTilePointerDown}
                           onEdit={(id) => setEditing(id)}
-                          onChangeFms={(id, fms) => updateKraft(id, { fms })}
                           ablThreshold={ablThreshold}
-                          showFms={showFms}
-                          showFunkruf={showFunkruf}
                         />
                       ))
                     )}
