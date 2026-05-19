@@ -492,13 +492,10 @@ function TagebuchTab({ data, setData, onPrint }) {
                       <tr className="row-additions">
                         <td colSpan={9}>
                           <div className="tb-additions">
-                            <div className="tb-additions-head">
-                              Ergänzungen zu Eintrag {e.nr}
-                            </div>
                             {e.additions.map((item) => (
                               <div className="tb-addition-item" key={item.id}>
                                 <div className="tb-addition-meta">
-                                  <span className="tb-addition-badge">
+                                  <span className="tb-addition-label">
                                     Ergänzung
                                   </span>
                                   <span className="mono">
