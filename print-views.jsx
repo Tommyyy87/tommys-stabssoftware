@@ -1,9 +1,9 @@
-// print-views.jsx — Druckaufbereitete Ansichten für Kräfteübersicht und Tagebuch
+// print-views.jsx - Druckaufbereitete Ansichten fuer Kräfteübersicht und Tagebuch
 
 function PrintHeader({ data, titel, blattInfo }) {
   const e = data.einsatz || {};
   const tbFhr = (data.funktionen || {}).tagebuch || {};
-  const el    = (data.funktionen || {}).einsatzleiter || {};
+  const el = (data.funktionen || {}).einsatzleiter || {};
   return (
     <header className="print-header">
       <div className="print-header-left">
@@ -16,20 +16,42 @@ function PrintHeader({ data, titel, blattInfo }) {
       <div className="print-header-center">
         <div className="print-titel">{titel}</div>
         <div className="print-sub">
-          <span><strong>Einsatz-Nr.:</strong> {e.nummer || '—'}</span>
-          <span><strong>Stichwort:</strong> {e.stichwort || '—'}</span>
-          <span><strong>Stufe:</strong> {e.fuehrungsstufe || '—'}</span>
+          <span>
+            <strong>Einsatz-Nr.:</strong> {e.nummer || "-"}
+          </span>
+          <span>
+            <strong>Stichwort:</strong> {e.stichwort || "-"}
+          </span>
+          <span>
+            <strong>Stufe:</strong> {e.fuehrungsstufe || "-"}
+          </span>
         </div>
         <div className="print-sub">
-          <span><strong>Ort:</strong> {e.ort || '—'}</span>
-          <span><strong>EL:</strong> {[el.dienstgrad, el.name].filter(Boolean).join(' ') || '—'}</span>
+          <span>
+            <strong>Ort:</strong> {e.ort || "-"}
+          </span>
+          <span>
+            <strong>EL:</strong>{" "}
+            {[el.dienstgrad, el.name].filter(Boolean).join(" ") || "-"}
+          </span>
         </div>
       </div>
       <div className="print-header-right">
         <div className="print-meta">
-          <div><strong>Druck:</strong> {fmtDate(nowISO())}</div>
-          {blattInfo && <div><strong>{blattInfo}</strong></div>}
-          {tbFhr.name && <div><strong>Tagebuchf.:</strong> {[tbFhr.dienstgrad, tbFhr.name].filter(Boolean).join(' ')}</div>}
+          <div>
+            <strong>Druck:</strong> {fmtDate(nowISO())}
+          </div>
+          {blattInfo && (
+            <div>
+              <strong>{blattInfo}</strong>
+            </div>
+          )}
+          {tbFhr.name && (
+            <div>
+              <strong>Tagebuchf.:</strong>{" "}
+              {[tbFhr.dienstgrad, tbFhr.name].filter(Boolean).join(" ")}
+            </div>
+          )}
         </div>
       </div>
     </header>
@@ -42,18 +64,40 @@ function PrintKraefte({ data }) {
 
   const renderKraftRow = (k) => (
     <tr key={k.id}>
-      <td className="col-tz"><TaktischesZeichen fach={k.fach} form={k.form} groesse={k.groesse} text={k.text} size="sm" /></td>
+      <td className="col-tz">
+        <TaktischesZeichen
+          fach={k.fach}
+          form={k.form}
+          groesse={k.groesse}
+          text={k.text}
+          size="sm"
+        />
+      </td>
       <td className="col-name">
-        <div className="bold">{k.name || k.text || '—'}</div>
-        <div className="mono small">{k.funkruf || '—'}</div>
+        <div className="bold">{k.name || k.text || "-"}</div>
+        <div className="mono small">{k.funkruf || "-"}</div>
       </td>
-      <td className="col-stk mono small">{k.staerke ? staerkeAnzeige(k.staerke) : ''}</td>
+      <td className="col-stk mono small">
+        {k.staerke ? staerkeAnzeige(k.staerke) : ""}
+      </td>
       <td className="col-dauer mono small">
-        {k.einsatzSeit && <div>Einsatz: <strong>{dauerStr(k.einsatzSeit)}</strong></div>}
-        {k.eaSince && <div>im EA: <strong>{dauerStr(k.eaSince)}</strong></div>}
+        {k.einsatzSeit && (
+          <div>
+            Einsatz: <strong>{dauerStr(k.einsatzSeit)}</strong>
+          </div>
+        )}
+        {k.eaSince && (
+          <div>
+            im EA: <strong>{dauerStr(k.eaSince)}</strong>
+          </div>
+        )}
       </td>
-      <td className="col-fms"><span className={`fms-cell fms-${k.fms || '2'}`}>{(k.fms || '2').toUpperCase()}</span></td>
-      <td className="col-bem">{k.bemerkung || ''}</td>
+      <td className="col-fms">
+        <span className={`fms-cell fms-${k.fms || "2"}`}>
+          {(k.fms || "2").toUpperCase()}
+        </span>
+      </td>
+      <td className="col-bem">{k.bemerkung || ""}</td>
     </tr>
   );
 
@@ -69,18 +113,23 @@ function PrintKraefte({ data }) {
       />
 
       <div className="print-grid">
-        {summary.abschnitte.map(ea => (
+        {summary.abschnitte.map((ea) => (
           <section className="print-ea" key={ea.id}>
-            <header className="print-ea-head" style={{ borderLeftColor: ea.farbe || '#0E1F3D' }}>
+            <header
+              className="print-ea-head"
+              style={{ borderLeftColor: ea.farbe || "#0E1F3D" }}
+            >
               <h3>{ea.name}</h3>
               <div className="print-ea-meta">
-                <span>Leiter: <strong>{ea.leiter || '—'}</strong></span>
+                <span>
+                  Leiter: <strong>{ea.leiter || "-"}</strong>
+                </span>
                 <span>{ea.kraefteCount} Kräfte</span>
                 <span>{ea.personalCount} Pers.</span>
               </div>
             </header>
             {ea.kraefteCount === 0 ? (
-              <div className="print-empty">— keine Kräfte zugeordnet —</div>
+              <div className="print-empty">- keine Kräfte zugeordnet -</div>
             ) : (
               <table className="print-table">
                 <thead>
@@ -93,9 +142,7 @@ function PrintKraefte({ data }) {
                     <th className="col-bem">Bemerkung</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {ea.kraefte.map(renderKraftRow)}
-                </tbody>
+                <tbody>{ea.kraefte.map(renderKraftRow)}</tbody>
               </table>
             )}
           </section>
@@ -103,7 +150,10 @@ function PrintKraefte({ data }) {
 
         {summary.poolKraefte > 0 && (
           <section className="print-ea print-pool">
-            <header className="print-ea-head" style={{ borderLeftColor: '#9097a8' }}>
+            <header
+              className="print-ea-head"
+              style={{ borderLeftColor: "#9097a8" }}
+            >
               <h3>Pool · nicht zugeordnet</h3>
               <div className="print-ea-meta">
                 <span>{summary.poolKraefte} Kräfte</span>
@@ -142,7 +192,9 @@ function PrintKraefte({ data }) {
         </div>
         <div className="print-summary-card">
           <span className="print-summary-label">Pool / nicht zugeordnet</span>
-          <strong>{summary.poolKraefte} Kräfte · {summary.poolPersonal} Pers.</strong>
+          <strong>
+            {summary.poolKraefte} Kräfte · {summary.poolPersonal} Pers.
+          </strong>
         </div>
         <div className="print-summary-card print-summary-total">
           <span className="print-summary-label">Gesamtpersonenzahl</span>
@@ -151,7 +203,8 @@ function PrintKraefte({ data }) {
       </section>
 
       <footer className="print-foot">
-        BIV 26/06 · Stabsunterstützung von Tommy · Kräfteübersicht — automatisch generiert
+        BIV 26/06 · Stabsunterstützung von Tommy · Kräfteübersicht - automatisch
+        generiert
       </footer>
     </div>
   );
@@ -159,13 +212,24 @@ function PrintKraefte({ data }) {
 
 // ===== Einsatztagebuch (Druck) =====
 function PrintTagebuch({ data }) {
-  const entries = [...(data.tagebuch || [])].sort((a,b) => (a.nr||0) - (b.nr||0));
+  const entries = [...(data.tagebuch || [])].sort(
+    (a, b) => (a.nr || 0) - (b.nr || 0),
+  );
+  const additionCount = entries.reduce(
+    (sum, entry) => sum + (entry.additions || []).length,
+    0,
+  );
+
   return (
     <div className="print-area print-tagebuch">
       <div className="print-watermark" aria-hidden="true">
         <img src="assets/biv-logo.png" alt="" />
       </div>
-      <PrintHeader data={data} titel="Einsatztagebuch der Einsatzleitung" blattInfo={`${entries.length} Einträge`} />
+      <PrintHeader
+        data={data}
+        titel="Einsatztagebuch der Einsatzleitung"
+        blattInfo={`${entries.length} Einträge · ${additionCount} Ergänzungen`}
+      />
 
       <table className="print-table tb">
         <thead>
@@ -176,25 +240,54 @@ function PrintTagebuch({ data }) {
             <th className="col-kanal">Kanal</th>
             <th className="col-von">Von</th>
             <th className="col-an">An</th>
-            <th>Inhalt — Ereignis, Beurteilung, Entschluss, Maßnahme</th>
+            <th>Inhalt - Ereignis, Beurteilung, Entschluss, Maßnahme</th>
             <th className="col-anlage">Anlage</th>
           </tr>
         </thead>
         <tbody>
           {entries.length === 0 ? (
-            <tr><td colSpan={8} className="print-empty">— keine Einträge —</td></tr>
-          ) : entries.map(e => (
-            <tr key={e.id}>
-              <td className="mono r">{e.nr}</td>
-              <td className="mono">{fmtDate(e.ts)}</td>
-              <td><span className={`typ-cell typ-${e.typ}`}>{e.typ}</span></td>
-              <td className="mono small">{e.kanal || ''}</td>
-              <td className="small">{e.von || ''}</td>
-              <td className="small">{e.an || ''}</td>
-              <td className="inhalt">{e.inhalt || ''}</td>
-              <td className="small">{e.anlage || ''}</td>
+            <tr>
+              <td colSpan={8} className="print-empty">
+                - keine Einträge -
+              </td>
             </tr>
-          ))}
+          ) : (
+            entries.map((rawEntry) => {
+              const e =
+                typeof normalizeTagebuchEntry === "function"
+                  ? normalizeTagebuchEntry(rawEntry)
+                  : rawEntry;
+              return (
+                <tr key={e.id}>
+                  <td className="mono r">{e.nr}</td>
+                  <td className="mono">{fmtDate(e.ts)}</td>
+                  <td>
+                    <span className={`typ-cell typ-${e.typ}`}>{e.typ}</span>
+                  </td>
+                  <td className="mono small">{e.kanal || ""}</td>
+                  <td className="small">{e.von || ""}</td>
+                  <td className="small">{e.an || ""}</td>
+                  <td className="inhalt">
+                    <div>{e.inhalt || ""}</div>
+                    {(e.additions || []).length > 0 && (
+                      <div className="print-additions">
+                        {e.additions.map((item) => (
+                          <div className="print-addition-item" key={item.id}>
+                            <div className="print-addition-meta">
+                              Ergänzung: {fmtDate(item.ts)}
+                              {item.anlage ? ` · Anlage: ${item.anlage}` : ""}
+                            </div>
+                            <div>{item.text || ""}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                  <td className="small">{e.anlage || ""}</td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
 
@@ -202,15 +295,20 @@ function PrintTagebuch({ data }) {
         <div className="sig-row">
           <div className="sig">
             <div className="sig-line"></div>
-            <div className="sig-label">Einsatztagebuchführer (Name, Dienstgrad, Unterschrift)</div>
+            <div className="sig-label">
+              Einsatztagebuchführer (Name, Dienstgrad, Unterschrift)
+            </div>
           </div>
           <div className="sig">
             <div className="sig-line"></div>
-            <div className="sig-label">Einsatzleiter (Name, Dienstgrad, Unterschrift)</div>
+            <div className="sig-label">
+              Einsatzleiter (Name, Dienstgrad, Unterschrift)
+            </div>
           </div>
         </div>
         <div className="print-foot-meta">
-          BIV 26/06 · Stabsunterstützung von Tommy · Einsatztagebuch — automatisch generiert
+          BIV 26/06 · Stabsunterstützung von Tommy · Einsatztagebuch -
+          automatisch generiert
         </div>
       </footer>
     </div>
