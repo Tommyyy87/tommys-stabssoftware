@@ -6,6 +6,14 @@ function KraftEditor({ open, kraft, onClose, onSave, onDelete }) {
   useEffect(() => { setK(kraft || null); }, [kraft, open]);
   if (!open || !k) return null;
   const set = (patch) => setK(prev => ({ ...prev, ...patch }));
+  const staerkeParts = parseStaerkeParts(k.staerke);
+  const updateStaerkePart = (part, value) => {
+    const nextParts = {
+      ...staerkeParts,
+      [part]: value === '' ? 0 : Math.max(0, Number.parseInt(value, 10) || 0),
+    };
+    set({ staerke: formatStaerkeFromParts(nextParts) });
+  };
 
   return (
     <Modal
@@ -86,15 +94,47 @@ function KraftEditor({ open, kraft, onClose, onSave, onDelete }) {
           <input className="input mono" value={k.text || ''} onChange={ev => set({ text: ev.target.value.toUpperCase() })} placeholder="LZ, HLF, RTW …" maxLength={6} />
         </div>
         <div>
-          <label className="label">Personalstärke (F / U / M)</label>
-          <input
-            className="input mono"
-            value={k.staerke || ''}
-            onChange={ev => set({ staerke: ev.target.value })}
-            placeholder="1 / 3 / 18"
-          />
+          <label className="label">Personalstärke</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <div>
+              <div className="label" style={{ marginBottom: 4, fontSize: 10 }}>F</div>
+              <input
+                className="input mono"
+                type="number"
+                min="0"
+                inputMode="numeric"
+                value={staerkeParts.f}
+                onChange={ev => updateStaerkePart('f', ev.target.value)}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <div className="label" style={{ marginBottom: 4, fontSize: 10 }}>U</div>
+              <input
+                className="input mono"
+                type="number"
+                min="0"
+                inputMode="numeric"
+                value={staerkeParts.u}
+                onChange={ev => updateStaerkePart('u', ev.target.value)}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <div className="label" style={{ marginBottom: 4, fontSize: 10 }}>M</div>
+              <input
+                className="input mono"
+                type="number"
+                min="0"
+                inputMode="numeric"
+                value={staerkeParts.m}
+                onChange={ev => updateStaerkePart('m', ev.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
           <div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>
-            {k.staerke ? `Gesamt = ${staerkeGesamt(k.staerke)} Pers.` : 'Format: Führer / Unterführer / Mannschaften'}
+            {`Schema ${formatStaerkeFromParts(staerkeParts)} · Gesamt = ${staerkeGesamt(k.staerke)} Pers.`}
           </div>
         </div>
         <div>

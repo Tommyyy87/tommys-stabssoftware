@@ -174,6 +174,39 @@
   color: #333;
 }
 
+.print-area .print-summary {
+  margin-top: 6mm;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3mm;
+}
+.print-area .print-summary-card {
+  border: 1px solid #cfd5df;
+  border-radius: 1mm;
+  padding: 3mm;
+  background: #f7f8fb;
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.print-area .print-summary-label {
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #667085;
+}
+.print-area .print-summary-card strong {
+  font-size: 13pt;
+  color: #0E1F3D;
+}
+.print-area .print-summary-total {
+  grid-column: 1 / -1;
+  background: #eef3ff;
+  border-color: #b9c7ef;
+}
+
 .print-area .print-table .col-tz { width: 18mm; }
 .print-area .print-table .col-name { }
 .print-area .print-table .col-stk { width: 22mm; white-space: nowrap; }

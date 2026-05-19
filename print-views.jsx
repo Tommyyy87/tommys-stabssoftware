@@ -38,19 +38,7 @@ function PrintHeader({ data, titel, blattInfo }) {
 
 // ===== Kräfteübersicht (Druck) =====
 function PrintKraefte({ data }) {
-  const kraefte = data.kraefte || {};
-  const eas     = data.einsatzabschnitte || {};
-  const eaList  = Object.values(eas).sort((a,b) => (a.ordnung||0) - (b.ordnung||0));
-  const buckets = {};
-  eaList.forEach(ea => { buckets[ea.id] = []; });
-  const pool = [];
-  Object.values(kraefte).forEach(k => {
-    if (k.ea && buckets[k.ea]) buckets[k.ea].push(k);
-    else pool.push(k);
-  });
-  const total = Object.keys(kraefte).length;
-  const assigned = total - pool.length;
-  const totalPers = Object.values(kraefte).reduce((s, k) => s + staerkeGesamt(k.staerke), 0);
+  const summary = summarizeKraefte(data);
 
   const renderKraftRow = (k) => (
     <tr key={k.id}>
@@ -71,19 +59,24 @@ function PrintKraefte({ data }) {
 
   return (
     <div className="print-area print-kraefte">
-      <PrintHeader data={data} titel="Kräfteübersicht" blattInfo={`${eaList.length} EA · ${assigned}/${total} Einh. · ${totalPers} Pers.`} />
+      <PrintHeader
+        data={data}
+        titel="Kräfteübersicht"
+        blattInfo={`${summary.abschnittCount} EA · ${summary.zugeordneteKraefte}/${summary.gesamtKraefte} Einh. · ${summary.zugeordnetesPersonal}/${summary.gesamtPersonal} Pers.`}
+      />
 
       <div className="print-grid">
-        {eaList.map(ea => (
+        {summary.abschnitte.map(ea => (
           <section className="print-ea" key={ea.id}>
             <header className="print-ea-head" style={{ borderLeftColor: ea.farbe || '#0E1F3D' }}>
               <h3>{ea.name}</h3>
               <div className="print-ea-meta">
                 <span>Leiter: <strong>{ea.leiter || '—'}</strong></span>
-                <span>{(buckets[ea.id] || []).length} Kräfte</span>
+                <span>{ea.kraefteCount} Kräfte</span>
+                <span>{ea.personalCount} Pers.</span>
               </div>
             </header>
-            {(buckets[ea.id] || []).length === 0 ? (
+            {ea.kraefteCount === 0 ? (
               <div className="print-empty">— keine Kräfte zugeordnet —</div>
             ) : (
               <table className="print-table">
@@ -98,18 +91,21 @@ function PrintKraefte({ data }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {buckets[ea.id].map(renderKraftRow)}
+                  {ea.kraefte.map(renderKraftRow)}
                 </tbody>
               </table>
             )}
           </section>
         ))}
 
-        {pool.length > 0 && (
+        {summary.poolKraefte > 0 && (
           <section className="print-ea print-pool">
             <header className="print-ea-head" style={{ borderLeftColor: '#9097a8' }}>
               <h3>Pool · nicht zugeordnet</h3>
-              <div className="print-ea-meta"><span>{pool.length} Kräfte</span></div>
+              <div className="print-ea-meta">
+                <span>{summary.poolKraefte} Kräfte</span>
+                <span>{summary.poolPersonal} Pers.</span>
+              </div>
             </header>
             <table className="print-table">
               <thead>
@@ -122,11 +118,34 @@ function PrintKraefte({ data }) {
                   <th className="col-bem">Bemerkung</th>
                 </tr>
               </thead>
-              <tbody>{pool.map(renderKraftRow)}</tbody>
+              <tbody>{summary.pool.map(renderKraftRow)}</tbody>
             </table>
           </section>
         )}
       </div>
+
+      <section className="print-summary">
+        <div className="print-summary-card">
+          <span className="print-summary-label">Einsatzabschnitte</span>
+          <strong>{summary.abschnittCount}</strong>
+        </div>
+        <div className="print-summary-card">
+          <span className="print-summary-label">Zugeordnete Kräfte</span>
+          <strong>{summary.zugeordneteKraefte}</strong>
+        </div>
+        <div className="print-summary-card">
+          <span className="print-summary-label">Personal in Abschnitten</span>
+          <strong>{summary.zugeordnetesPersonal}</strong>
+        </div>
+        <div className="print-summary-card">
+          <span className="print-summary-label">Pool / nicht zugeordnet</span>
+          <strong>{summary.poolKraefte} Kräfte · {summary.poolPersonal} Pers.</strong>
+        </div>
+        <div className="print-summary-card print-summary-total">
+          <span className="print-summary-label">Gesamtpersonenzahl</span>
+          <strong>{summary.gesamtPersonal}</strong>
+        </div>
+      </section>
 
       <footer className="print-foot">
         BIV 26/06 · Stabsunterstützung von Tommy · Kräfteübersicht — automatisch generiert

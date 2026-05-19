@@ -289,14 +289,16 @@ const GROESSE_OPTIONS = [
 
 // Personalstärke-Summe aus "a/b/c" berechnen
 function staerkeGesamt(s) {
-  if (!s) return 0;
-  const parts = String(s).split('/').map(x => parseInt(x.trim(), 10)).filter(n => !isNaN(n));
-  return parts.reduce((a, b) => a + b, 0);
+  const parts = window.parseStaerkeParts ? window.parseStaerkeParts(s) : { f: 0, u: 0, m: 0 };
+  return parts.f + parts.u + parts.m;
 }
 function staerkeAnzeige(s) {
   if (!s) return '';
-  const g = staerkeGesamt(s);
-  return g ? `${s} = ${g}` : s;
+  const normalized = window.formatStaerkeFromParts
+    ? window.formatStaerkeFromParts(window.parseStaerkeParts(s))
+    : s;
+  const total = staerkeGesamt(s);
+  return `${normalized} = ${total}`;
 }
 
 Object.assign(window, {
