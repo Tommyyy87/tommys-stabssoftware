@@ -656,6 +656,14 @@ select {
   grid-template-columns: repeat(3, 1fr);
   gap: calc(12px * var(--density));
 }
+.kraft-staerke-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, 1fr));
+  gap: 8px;
+}
+.kraft-staerke-input {
+  min-width: 0;
+}
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
