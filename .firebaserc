@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "tommy-stabssoftware"
+  },
+  "targets": {
+    "tommy-stabssoftware": {
+      "hosting": {
+        "default": [
+          "tommy-stabssoftware"
+        ]
+      }
+    }
+  }
+}

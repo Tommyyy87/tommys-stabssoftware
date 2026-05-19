@@ -106,6 +106,127 @@ body {
 button { font: inherit; color: inherit; }
 input, textarea, select { font: inherit; color: inherit; }
 
+.access-shell {
+  min-height: 100%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(181, 186, 194, 0.14), transparent 32%),
+    linear-gradient(180deg, #081429 0%, #0e1f3d 42%, #122039 100%);
+  overflow: hidden;
+}
+.access-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.08), transparent 22%),
+    radial-gradient(circle at 85% 80%, rgba(181,186,194,.08), transparent 24%);
+}
+.access-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(7, 16, 32, .84);
+  box-shadow: 0 30px 60px -24px rgba(0,0,0,.6);
+  backdrop-filter: blur(18px);
+  color: #e7ebf3;
+}
+.loading-card {
+  max-width: 460px;
+  text-align: center;
+}
+.access-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.access-brand-mark {
+  width: 56px;
+  height: 62px;
+  flex-shrink: 0;
+}
+.access-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,.25));
+}
+.access-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.access-brand-text .top {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-silver);
+}
+.access-brand-text .bottom {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+.access-copy h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.05;
+  color: #fff;
+}
+.access-copy p {
+  margin: 0;
+  color: #c5ccda;
+  line-height: 1.55;
+}
+.access-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+.access-input {
+  height: 42px;
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.12);
+  color: #fff;
+}
+.access-input:focus {
+  border-color: var(--brand-silver);
+  box-shadow: 0 0 0 3px rgba(181, 186, 194, .18);
+}
+.access-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.access-note {
+  font-size: 12px;
+  color: #9da8bc;
+}
+.access-error {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(200, 16, 46, .4);
+  background: rgba(200, 16, 46, .14);
+  color: #ffd2d8;
+  font-size: 12px;
+}
+.access-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ========================================================
    App shell
    ======================================================== */
@@ -214,6 +335,7 @@ input, textarea, select { font: inherit; color: inherit; }
   box-shadow: 0 0 0 2px #3aa16433;
 }
 .topbar .save-dot.saving { background: var(--fms-3); box-shadow: 0 0 0 2px #f0a50033; animation: pulse 1s ease-in-out infinite; }
+.topbar .save-dot.error { background: var(--fms-c); box-shadow: 0 0 0 2px #c8102e33; animation: none; }
 @keyframes pulse { 50% { opacity: 0.4; } }
 
 .topbar .menu {
