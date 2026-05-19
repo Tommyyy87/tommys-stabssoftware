@@ -40,13 +40,7 @@ function KraftEditor({ open, kraft, onClose, onSave, onDelete }) {
           <button className="btn" onClick={onClose}>
             Abbrechen
           </button>
-          <button
-            className="btn primary"
-            onClick={() => {
-              onSave(k);
-              onClose();
-            }}
-          >
+          <button className="btn primary" onClick={() => onSave(k)}>
             <I.check /> Übernehmen
           </button>
         </>
@@ -494,6 +488,7 @@ function KraefteTab({ data, setData, onPrint, ablThreshold = 6 }) {
   );
 
   const upsertKraftFromEditor = (k) => {
+    setEditing(null);
     setData((d) => {
       const next = { ...(d.kraefte || {}) };
       const id = k.id;

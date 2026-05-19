@@ -23,6 +23,12 @@ assert.match(
   "new custom kraft should remain a draft until the editor is confirmed",
 );
 
+assert.doesNotMatch(
+  source,
+  /onClick=\{\(\) => \{\s*onSave\(k\);\s*onClose\(\);\s*\}\}/,
+  "saving a kraft must not immediately run the cancel-close path in the same click handler",
+);
+
 assert.match(
   styles,
   /\.kraft-staerke-grid\s*\{[\s\S]*minmax\(72px,\s*1fr\)/,
